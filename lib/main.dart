@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/transaction_provider.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_screen.dart';
 
 void main() {
   // Pastikan Flutter binding sudah diinisialisasi
@@ -34,55 +34,64 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
 
         // ============================================================
-        // THEME DATA
+        // THEME DATA - DARK THEME
         // ============================================================
         theme: ThemeData(
           // Menggunakan Material 3
           useMaterial3: true,
 
-          // Color Scheme
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            brightness: Brightness.light,
-          ).copyWith(
-            // Custom colors untuk aplikasi
-            primary: const Color(0xFF2196F3),       // Biru - Primary
-            secondary: const Color(0xFF4CAF50),     // Hijau - Income
-            error: const Color(0xFFF44336),         // Merah - Expense
-            surface: Colors.white,
-            onSurface: Colors.black87,
+          // Brightness
+          brightness: Brightness.dark,
+
+          // Scaffold Background
+          scaffoldBackgroundColor: const Color(0xFF0D0D0D),
+
+          // Color Scheme - Dark with Lime Green Accent
+          colorScheme: const ColorScheme.dark(
+            primary: Color(0xFFC6FF00),         // Lime Green
+            secondary: Color(0xFFC6FF00),       // Lime Green
+            surface: Color(0xFF1A1A1A),         // Dark card
+            error: Color(0xFFFF5252),           // Red
+            onPrimary: Color(0xFF0D0D0D),       // Text on lime green
+            onSecondary: Color(0xFF0D0D0D),
+            onSurface: Colors.white,
+            onError: Colors.white,
           ),
 
           // App Bar Theme
           appBarTheme: const AppBarTheme(
             centerTitle: true,
             elevation: 0,
-            backgroundColor: Color(0xFF2196F3),
+            backgroundColor: Color(0xFF0D0D0D),
             foregroundColor: Colors.white,
             titleTextStyle: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
+            iconTheme: IconThemeData(color: Colors.white),
           ),
 
           // Card Theme
-          cardTheme: const CardThemeData(
-            elevation: 2,
+          cardTheme: CardThemeData(
+            elevation: 0,
+            color: const Color(0xFF1A1A1A),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12)),
+              borderRadius: BorderRadius.circular(16),
             ),
           ),
 
           // Elevated Button Theme
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFC6FF00),
+              foregroundColor: const Color(0xFF0D0D0D),
               padding: const EdgeInsets.symmetric(
                 horizontal: 24,
                 vertical: 12,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
           ),
@@ -90,15 +99,19 @@ class MyApp extends StatelessWidget {
           // Input Decoration Theme
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: const Color(0xFF1A1A1A),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+              borderSide: const BorderSide(color: Color(0xFF333333)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF333333)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
-                color: Color(0xFF2196F3),
+                color: Color(0xFFC6FF00),
                 width: 2,
               ),
             ),
@@ -106,49 +119,83 @@ class MyApp extends StatelessWidget {
               horizontal: 16,
               vertical: 16,
             ),
+            hintStyle: const TextStyle(color: Color(0xFF666666)),
+            prefixIconColor: const Color(0xFF9E9E9E),
           ),
 
           // Floating Action Button Theme
           floatingActionButtonTheme: const FloatingActionButtonThemeData(
-            backgroundColor: Color(0xFF2196F3),
-            foregroundColor: Colors.white,
+            backgroundColor: Color(0xFFC6FF00),
+            foregroundColor: Color(0xFF0D0D0D),
             elevation: 4,
+          ),
+
+          // Bottom Navigation Bar Theme
+          bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+            backgroundColor: Color(0xFF1A1A1A),
+            selectedItemColor: Color(0xFFC6FF00),
+            unselectedItemColor: Color(0xFF666666),
+          ),
+
+          // Snackbar Theme
+          snackBarTheme: SnackBarThemeData(
+            backgroundColor: const Color(0xFF1A1A1A),
+            contentTextStyle: const TextStyle(color: Colors.white),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+
+          // Dialog Theme
+          dialogTheme: DialogThemeData(
+            backgroundColor: const Color(0xFF1A1A1A),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
         ),
 
         // ============================================================
-        // HOME SCREEN
+        // MAIN SCREEN WITH BOTTOM NAVIGATION
         // ============================================================
-        home: const HomeScreen(),
+        home: const MainScreen(),
       ),
     );
   }
 }
 
 // ============================================================
-// HELPER CLASS UNTUK WARNA KUSTOM
+// HELPER CLASS UNTUK WARNA KUSTOM - DARK THEME
 // ============================================================
 /// Class untuk menyimpan konstanta warna aplikasi
-/// Digunakan di seluruh aplikasi untuk konsistensi
+/// Tema: Dark Mode dengan aksen Lime Green
 class AppColors {
   // Prevent instantiation
   AppColors._();
 
-  // Primary Colors
-  static const Color primary = Color(0xFF2196F3);
-  static const Color primaryLight = Color(0xFF64B5F6);
-  static const Color primaryDark = Color(0xFF1976D2);
+  // Primary Colors - Lime Green Accent
+  static const Color primary = Color(0xFFC6FF00);       // Lime Green
+  static const Color primaryLight = Color(0xFFE4FF54);  // Lime Green Light
+  static const Color primaryDark = Color(0xFF9ECC00);   // Lime Green Dark
 
   // Income & Expense Colors
-  static const Color income = Color(0xFF4CAF50);      // Hijau
-  static const Color incomeLight = Color(0xFFE8F5E9);
-  static const Color expense = Color(0xFFF44336);     // Merah
-  static const Color expenseLight = Color(0xFFFFEBEE);
+  static const Color income = Color(0xFFC6FF00);        // Lime Green untuk pemasukan
+  static const Color incomeLight = Color(0xFF1A2E1A);   // Dark green background
+  static const Color expense = Color(0xFFFF5252);       // Merah terang
+  static const Color expenseLight = Color(0xFF2E1A1A); // Dark red background
 
-  // Neutral Colors
-  static const Color background = Color(0xFFF5F5F5);
-  static const Color surface = Colors.white;
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
-  static const Color divider = Color(0xFFBDBDBD);
+  // Dark Theme Background Colors
+  static const Color background = Color(0xFF0D0D0D);    // Almost black
+  static const Color surface = Color(0xFF1A1A1A);       // Dark gray card
+  static const Color surfaceLight = Color(0xFF242424);  // Slightly lighter card
+  static const Color cardBackground = Color(0xFF1E1E1E); // Card background
+
+  // Text Colors
+  static const Color textPrimary = Color(0xFFFFFFFF);   // White
+  static const Color textSecondary = Color(0xFF9E9E9E); // Gray
+  static const Color textMuted = Color(0xFF666666);     // Muted gray
+
+  // Other Colors
+  static const Color divider = Color(0xFF2A2A2A);
+  static const Color border = Color(0xFF333333);
 }

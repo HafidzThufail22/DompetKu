@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../providers/transaction_provider.dart';
 import '../models/transaction_model.dart';
 import '../models/category_model.dart';
+import '../models/wallet_model.dart';
 import '../main.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -165,15 +166,9 @@ class _HomeScreenState extends State<HomeScreen> {
   // WALLET FILTER WIDGET
   // ============================================================
 
-  /// Sample wallet data (nanti bisa dari database)
-  final List<Map<String, dynamic>> _wallets = [
-    {'id': null, 'name': 'Semua', 'icon': Icons.account_balance_wallet},
-    {'id': 1, 'name': 'Tunai', 'icon': Icons.money},
-    {'id': 2, 'name': 'Bank', 'icon': Icons.account_balance},
-    {'id': 3, 'name': 'E-Wallet', 'icon': Icons.phone_android},
-  ];
-
   Widget _buildWalletFilter(TransactionProvider provider) {
+    final wallets = provider.wallets;
+    
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
@@ -187,13 +182,56 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
-            // Wallet Chips
-            ..._wallets.map((wallet) {
-              final isSelected = provider.selectedWalletId == wallet['id'];
+            // "Semua" Wallet Chip
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: GestureDetector(
+                onTap: () => provider.selectWallet(null),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: provider.selectedWalletId == null ? AppColors.primary : AppColors.surfaceLight,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: provider.selectedWalletId == null ? AppColors.primary : AppColors.border,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.account_balance_wallet,
+                        size: 18,
+                        color: provider.selectedWalletId == null 
+                            ? const Color(0xFF0D0D0D)
+                            : AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Semua',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: provider.selectedWalletId == null ? FontWeight.bold : FontWeight.normal,
+                          color: provider.selectedWalletId == null 
+                              ? const Color(0xFF0D0D0D)
+                              : AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Dynamic Wallet Chips from Provider
+            ...wallets.map((wallet) {
+              final isSelected = provider.selectedWalletId == wallet.id;
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: GestureDetector(
-                  onTap: () => provider.selectWallet(wallet['id'] as int?),
+                  onTap: () => provider.selectWallet(wallet.id),
+                  onLongPress: () => _showEditWalletDialog(context, wallet),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -208,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          wallet['icon'] as IconData,
+                          wallet.iconData,
                           size: 18,
                           color: isSelected 
                               ? const Color(0xFF0D0D0D)
@@ -216,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          wallet['name'] as String,
+                          wallet.name,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -255,50 +293,239 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ============================================================
+  // WALLET DIALOGS
+  // ============================================================
+
   void _showAddWalletDialog(BuildContext context) {
     final nameController = TextEditingController();
+    String selectedIcon = 'account_balance_wallet';
 
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text('Tambah Dompet Baru'),
-        content: TextField(
-          controller: nameController,
-          style: const TextStyle(color: AppColors.textPrimary),
-          decoration: const InputDecoration(
-            hintText: 'Nama dompet',
-            filled: true,
-            fillColor: AppColors.surfaceLight,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.surface,
+          title: const Text('Tambah Dompet Baru'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Name Input
+              TextField(
+                controller: nameController,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(
+                  hintText: 'Nama dompet',
+                  filled: true,
+                  fillColor: AppColors.surfaceLight,
+                ),
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              // Icon Selection
+              const Text(
+                'Pilih Icon',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildIconPicker(selectedIcon, (icon) {
+                setDialogState(() => selectedIcon = icon);
+              }),
+            ],
           ),
-          autofocus: true,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (nameController.text.trim().isNotEmpty) {
+                  final wallet = Wallet(
+                    name: nameController.text.trim(),
+                    icon: selectedIcon,
+                  );
+                  final success = await context.read<TransactionProvider>().addWallet(wallet);
+                  
+                  if (success && dialogContext.mounted) {
+                    Navigator.pop(dialogContext);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Dompet "${wallet.name}" berhasil ditambahkan!'),
+                        backgroundColor: AppColors.income,
+                      ),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: const Color(0xFF0D0D0D),
+              ),
+              child: const Text('Tambah'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Batal'),
+      ),
+    );
+  }
+
+  void _showEditWalletDialog(BuildContext context, Wallet wallet) {
+    final nameController = TextEditingController(text: wallet.name);
+    String selectedIcon = wallet.icon;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.surface,
+          title: const Text('Edit Dompet'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Name Input
+              TextField(
+                controller: nameController,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(
+                  hintText: 'Nama dompet',
+                  filled: true,
+                  fillColor: AppColors.surfaceLight,
+                ),
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              // Icon Selection
+              const Text(
+                'Pilih Icon',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildIconPicker(selectedIcon, (icon) {
+                setDialogState(() => selectedIcon = icon);
+              }),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              if (nameController.text.trim().isNotEmpty) {
-                // TODO: Implement add wallet to database
-                Navigator.pop(dialogContext);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Dompet "${nameController.text}" akan ditambahkan'),
-                    backgroundColor: AppColors.income,
+          actions: [
+            // Delete Button
+            TextButton(
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    backgroundColor: AppColors.surface,
+                    title: const Text('Hapus Dompet?'),
+                    content: Text('Yakin ingin menghapus dompet "${wallet.name}"?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Batal'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Hapus', style: TextStyle(color: AppColors.expense)),
+                      ),
+                    ],
                   ),
                 );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: const Color(0xFF0D0D0D),
+
+                if (confirm == true && dialogContext.mounted) {
+                  final success = await context.read<TransactionProvider>().deleteWallet(wallet.id!);
+                  if (success && dialogContext.mounted) {
+                    Navigator.pop(dialogContext);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Dompet "${wallet.name}" dihapus'),
+                        backgroundColor: AppColors.expense,
+                      ),
+                    );
+                  } else if (dialogContext.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Tidak bisa dihapus - ada transaksi terkait'),
+                        backgroundColor: AppColors.expense,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('Hapus', style: TextStyle(color: AppColors.expense)),
             ),
-            child: const Text('Tambah'),
-          ),
-        ],
+            const Spacer(),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (nameController.text.trim().isNotEmpty) {
+                  final updatedWallet = wallet.copyWith(
+                    name: nameController.text.trim(),
+                    icon: selectedIcon,
+                  );
+                  final success = await context.read<TransactionProvider>().updateWallet(updatedWallet);
+                  
+                  if (success && dialogContext.mounted) {
+                    Navigator.pop(dialogContext);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Dompet "${updatedWallet.name}" berhasil diperbarui!'),
+                        backgroundColor: AppColors.income,
+                      ),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: const Color(0xFF0D0D0D),
+              ),
+              child: const Text('Simpan'),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildIconPicker(String selectedIcon, Function(String) onSelect) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: Wallet.availableIcons.map((iconData) {
+        final iconName = iconData['name'] as String;
+        final icon = iconData['icon'] as IconData;
+        final isSelected = selectedIcon == iconName;
+        
+        return GestureDetector(
+          onTap: () => onSelect(iconName),
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.primary : AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isSelected ? AppColors.primary : AppColors.border,
+                width: 2,
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: 22,
+              color: isSelected ? const Color(0xFF0D0D0D) : AppColors.textSecondary,
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 

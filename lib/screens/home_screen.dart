@@ -168,14 +168,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildWalletFilter(TransactionProvider provider) {
     final wallets = provider.wallets;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border(
-          bottom: BorderSide(color: AppColors.border, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -189,12 +187,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () => provider.selectWallet(null),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
-                    color: provider.selectedWalletId == null ? AppColors.primary : AppColors.surfaceLight,
+                    color: provider.selectedWalletId == null
+                        ? AppColors.primary
+                        : AppColors.surfaceLight,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: provider.selectedWalletId == null ? AppColors.primary : AppColors.border,
+                      color: provider.selectedWalletId == null
+                          ? AppColors.primary
+                          : AppColors.border,
                     ),
                   ),
                   child: Row(
@@ -203,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Icon(
                         Icons.account_balance_wallet,
                         size: 18,
-                        color: provider.selectedWalletId == null 
+                        color: provider.selectedWalletId == null
                             ? const Color(0xFF0D0D0D)
                             : AppColors.textSecondary,
                       ),
@@ -212,8 +217,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         'Semua',
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: provider.selectedWalletId == null ? FontWeight.bold : FontWeight.normal,
-                          color: provider.selectedWalletId == null 
+                          fontWeight: provider.selectedWalletId == null
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: provider.selectedWalletId == null
                               ? const Color(0xFF0D0D0D)
                               : AppColors.textPrimary,
                         ),
@@ -234,12 +241,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   onLongPress: () => _showEditWalletDialog(context, wallet),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary : AppColors.surfaceLight,
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.surfaceLight,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isSelected ? AppColors.primary : AppColors.border,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.border,
                       ),
                     ),
                     child: Row(
@@ -248,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Icon(
                           wallet.iconData,
                           size: 18,
-                          color: isSelected 
+                          color: isSelected
                               ? const Color(0xFF0D0D0D)
                               : AppColors.textSecondary,
                         ),
@@ -257,8 +271,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           wallet.name,
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected 
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: isSelected
                                 ? const Color(0xFF0D0D0D)
                                 : AppColors.textPrimary,
                           ),
@@ -349,13 +365,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     name: nameController.text.trim(),
                     icon: selectedIcon,
                   );
-                  final success = await context.read<TransactionProvider>().addWallet(wallet);
-                  
+                  final success = await context
+                      .read<TransactionProvider>()
+                      .addWallet(wallet);
+
                   if (success && dialogContext.mounted) {
                     Navigator.pop(dialogContext);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Dompet "${wallet.name}" berhasil ditambahkan!'),
+                        content: Text(
+                          'Dompet "${wallet.name}" berhasil ditambahkan!',
+                        ),
                         backgroundColor: AppColors.income,
                       ),
                     );
@@ -423,7 +443,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (ctx) => AlertDialog(
                     backgroundColor: AppColors.surface,
                     title: const Text('Hapus Dompet?'),
-                    content: Text('Yakin ingin menghapus dompet "${wallet.name}"?'),
+                    content: Text(
+                      'Yakin ingin menghapus dompet "${wallet.name}"?',
+                    ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
@@ -431,14 +453,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Hapus', style: TextStyle(color: AppColors.expense)),
+                        child: const Text(
+                          'Hapus',
+                          style: TextStyle(color: AppColors.expense),
+                        ),
                       ),
                     ],
                   ),
                 );
 
                 if (confirm == true && dialogContext.mounted) {
-                  final success = await context.read<TransactionProvider>().deleteWallet(wallet.id!);
+                  final success = await context
+                      .read<TransactionProvider>()
+                      .deleteWallet(wallet.id!);
                   if (success && dialogContext.mounted) {
                     Navigator.pop(dialogContext);
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -450,14 +477,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   } else if (dialogContext.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Tidak bisa dihapus - ada transaksi terkait'),
+                        content: Text(
+                          'Tidak bisa dihapus - ada transaksi terkait',
+                        ),
                         backgroundColor: AppColors.expense,
                       ),
                     );
                   }
                 }
               },
-              child: const Text('Hapus', style: TextStyle(color: AppColors.expense)),
+              child: const Text(
+                'Hapus',
+                style: TextStyle(color: AppColors.expense),
+              ),
             ),
             const Spacer(),
             TextButton(
@@ -471,13 +503,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     name: nameController.text.trim(),
                     icon: selectedIcon,
                   );
-                  final success = await context.read<TransactionProvider>().updateWallet(updatedWallet);
-                  
+                  final success = await context
+                      .read<TransactionProvider>()
+                      .updateWallet(updatedWallet);
+
                   if (success && dialogContext.mounted) {
                     Navigator.pop(dialogContext);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Dompet "${updatedWallet.name}" berhasil diperbarui!'),
+                        content: Text(
+                          'Dompet "${updatedWallet.name}" berhasil diperbarui!',
+                        ),
                         backgroundColor: AppColors.income,
                       ),
                     );
@@ -504,7 +540,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final iconName = iconData['name'] as String;
         final icon = iconData['icon'] as IconData;
         final isSelected = selectedIcon == iconName;
-        
+
         return GestureDetector(
           onTap: () => onSelect(iconName),
           child: Container(
@@ -521,7 +557,9 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Icon(
               icon,
               size: 22,
-              color: isSelected ? const Color(0xFF0D0D0D) : AppColors.textSecondary,
+              color: isSelected
+                  ? const Color(0xFF0D0D0D)
+                  : AppColors.textSecondary,
             ),
           ),
         );
@@ -538,9 +576,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border(
-          bottom: BorderSide(color: AppColors.border, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -563,13 +599,13 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
-                color: provider.isCurrentMonth 
+                color: provider.isCurrentMonth
                     ? AppColors.primary.withAlpha(30)
                     : AppColors.surfaceLight,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: provider.isCurrentMonth 
-                      ? AppColors.primary 
+                  color: provider.isCurrentMonth
+                      ? AppColors.primary
                       : AppColors.border,
                 ),
               ),
@@ -579,8 +615,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Icon(
                     Icons.calendar_month,
                     size: 18,
-                    color: provider.isCurrentMonth 
-                        ? AppColors.primary 
+                    color: provider.isCurrentMonth
+                        ? AppColors.primary
                         : AppColors.textSecondary,
                   ),
                   const SizedBox(width: 8),
@@ -589,8 +625,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: provider.isCurrentMonth 
-                          ? AppColors.primary 
+                      color: provider.isCurrentMonth
+                          ? AppColors.primary
                           : AppColors.textPrimary,
                     ),
                   ),
@@ -646,9 +682,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 spacing: 8,
                 runSpacing: 8,
                 children: months.map((month) {
-                  final isSelected = month.year == provider.selectedMonth.year &&
+                  final isSelected =
+                      month.year == provider.selectedMonth.year &&
                       month.month == provider.selectedMonth.month;
-                  final monthName = DateFormat('MMM yyyy', 'id_ID').format(month);
+                  final monthName = DateFormat(
+                    'MMM yyyy',
+                    'id_ID',
+                  ).format(month);
 
                   return GestureDetector(
                     onTap: () {
@@ -661,16 +701,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primary : AppColors.surfaceLight,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.surfaceLight,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         monthName,
                         style: TextStyle(
-                          color: isSelected 
-                              ? const Color(0xFF0D0D0D) 
+                          color: isSelected
+                              ? const Color(0xFF0D0D0D)
                               : AppColors.textPrimary,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
                     ),
@@ -747,7 +791,10 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withAlpha(77),
                       borderRadius: BorderRadius.circular(8),
@@ -787,18 +834,11 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               const Text(
                 'Saldo Bulan Ini',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF333333),
-                ),
+                style: TextStyle(fontSize: 14, color: Color(0xFF333333)),
               ),
               const SizedBox(width: 8),
               if (isHidden)
-                const Icon(
-                  Icons.lock,
-                  size: 14,
-                  color: Color(0xFF666666),
-                ),
+                const Icon(Icons.lock, size: 14, color: Color(0xFF666666)),
             ],
           ),
           const SizedBox(height: 4),
@@ -819,10 +859,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Text(
               'Total: ${_formatBalanceDisplay(provider.totalBalance, isHidden)}',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF333333),
-              ),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF333333)),
             ),
           ),
         ],
@@ -1008,7 +1045,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTransactionItem(Transaction transaction, TransactionProvider provider) {
+  Widget _buildTransactionItem(
+    Transaction transaction,
+    TransactionProvider provider,
+  ) {
     final isIncome = transaction.isIncome;
 
     return Dismissible(
@@ -1038,7 +1078,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Hapus', style: TextStyle(color: AppColors.expense)),
+                child: const Text(
+                  'Hapus',
+                  style: TextStyle(color: AppColors.expense),
+                ),
               ),
             ],
           ),
@@ -1046,9 +1089,9 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       onDismissed: (direction) {
         provider.deleteTransaction(transaction.id!);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Transaksi dihapus')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Transaksi dihapus')));
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -1065,7 +1108,9 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: isIncome ? AppColors.incomeLight : AppColors.expenseLight,
+                color: isIncome
+                    ? AppColors.incomeLight
+                    : AppColors.expenseLight,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -1092,9 +1137,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
-                          color: isIncome ? AppColors.incomeLight : AppColors.expenseLight,
+                          color: isIncome
+                              ? AppColors.incomeLight
+                              : AppColors.expenseLight,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -1102,7 +1152,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: isIncome ? AppColors.income : AppColors.expense,
+                            color: isIncome
+                                ? AppColors.income
+                                : AppColors.expense,
                           ),
                         ),
                       ),
@@ -1161,7 +1213,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ? provider.incomeCategories
               : provider.expenseCategories;
 
-          if (selectedCategory == null || selectedCategory!.type != selectedType) {
+          if (selectedCategory == null ||
+              selectedCategory!.type != selectedType) {
             selectedCategory = categories.isNotEmpty ? categories.first : null;
           }
 
@@ -1202,7 +1255,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 20),
 
                       // Type Toggle
-                      const Text('Tipe Transaksi', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                      const Text(
+                        'Tipe Transaksi',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
@@ -1213,7 +1272,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 selectedCategory = null;
                               }),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                                 decoration: BoxDecoration(
                                   color: selectedType == Category.typeIncome
                                       ? AppColors.income
@@ -1240,7 +1301,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       'Pemasukan',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: selectedType == Category.typeIncome
+                                        color:
+                                            selectedType == Category.typeIncome
                                             ? const Color(0xFF0D0D0D)
                                             : AppColors.textSecondary,
                                       ),
@@ -1258,7 +1320,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 selectedCategory = null;
                               }),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                                 decoration: BoxDecoration(
                                   color: selectedType == Category.typeExpense
                                       ? AppColors.expense
@@ -1275,7 +1339,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   children: [
                                     Icon(
                                       Icons.arrow_upward,
-                                      color: selectedType == Category.typeExpense
+                                      color:
+                                          selectedType == Category.typeExpense
                                           ? Colors.white
                                           : AppColors.textSecondary,
                                       size: 20,
@@ -1285,7 +1350,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       'Pengeluaran',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: selectedType == Category.typeExpense
+                                        color:
+                                            selectedType == Category.typeExpense
                                             ? Colors.white
                                             : AppColors.textSecondary,
                                       ),
@@ -1300,13 +1366,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 20),
 
                       // Category Dropdown with Add Button
-                      const Text('Kategori', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                      const Text(
+                        'Kategori',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
                           Expanded(
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.surfaceLight,
                                 borderRadius: BorderRadius.circular(12),
@@ -1317,14 +1391,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                   value: selectedCategory,
                                   isExpanded: true,
                                   dropdownColor: AppColors.surface,
-                                  hint: const Text('Pilih Kategori', style: TextStyle(color: AppColors.textSecondary)),
+                                  hint: const Text(
+                                    'Pilih Kategori',
+                                    style: TextStyle(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
                                   items: categories.map((category) {
                                     return DropdownMenuItem<Category>(
                                       value: category,
-                                      child: Text(category.name, style: const TextStyle(color: AppColors.textPrimary)),
+                                      child: Text(
+                                        category.name,
+                                        style: const TextStyle(
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
                                     );
                                   }).toList(),
-                                  onChanged: (value) => setModalState(() => selectedCategory = value),
+                                  onChanged: (value) => setModalState(
+                                    () => selectedCategory = value,
+                                  ),
                                 ),
                               ),
                             ),
@@ -1337,8 +1423,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: IconButton(
-                              onPressed: () => _showAddCategoryDialog(context, selectedType, setModalState),
-                              icon: const Icon(Icons.add, color: Color(0xFF0D0D0D)),
+                              onPressed: () => _showAddCategoryDialog(
+                                context,
+                                selectedType,
+                                setModalState,
+                              ),
+                              icon: const Icon(
+                                Icons.add,
+                                color: Color(0xFF0D0D0D),
+                              ),
                             ),
                           ),
                         ],
@@ -1346,7 +1439,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 20),
 
                       // Title Input
-                      const Text('Judul', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                      const Text(
+                        'Judul',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: titleController,
@@ -1356,14 +1455,21 @@ class _HomeScreenState extends State<HomeScreen> {
                           prefixIcon: Icon(Icons.edit),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty) return 'Judul tidak boleh kosong';
+                          if (value == null || value.isEmpty)
+                            return 'Judul tidak boleh kosong';
                           return null;
                         },
                       ),
                       const SizedBox(height: 20),
 
                       // Amount Input
-                      const Text('Nominal (Rp)', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                      const Text(
+                        'Nominal (Rp)',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: amountController,
@@ -1374,16 +1480,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           prefixIcon: Icon(Icons.attach_money),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty) return 'Nominal tidak boleh kosong';
-                          if (int.tryParse(value) == null) return 'Masukkan angka yang valid';
-                          if (int.parse(value) <= 0) return 'Nominal harus lebih dari 0';
+                          if (value == null || value.isEmpty)
+                            return 'Nominal tidak boleh kosong';
+                          if (int.tryParse(value) == null)
+                            return 'Masukkan angka yang valid';
+                          if (int.parse(value) <= 0)
+                            return 'Nominal harus lebih dari 0';
                           return null;
                         },
                       ),
                       const SizedBox(height: 20),
 
                       // Date & Time Picker
-                      const Text('Tanggal & Waktu', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                      const Text(
+                        'Tanggal & Waktu',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       GestureDetector(
                         onTap: () async {
@@ -1392,7 +1507,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             context: context,
                             initialDate: selectedDateTime,
                             firstDate: DateTime(2020),
-                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                            lastDate: DateTime.now().add(
+                              const Duration(days: 365),
+                            ),
                             builder: (context, child) {
                               return Theme(
                                 data: Theme.of(context).copyWith(
@@ -1407,12 +1524,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             },
                           );
-                          
+
                           if (date != null && context.mounted) {
                             // Pick Time
                             final time = await showTimePicker(
                               context: context,
-                              initialTime: TimeOfDay.fromDateTime(selectedDateTime),
+                              initialTime: TimeOfDay.fromDateTime(
+                                selectedDateTime,
+                              ),
                               builder: (context, child) {
                                 return Theme(
                                   data: Theme.of(context).copyWith(
@@ -1427,12 +1546,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               },
                             );
-                            
+
                             if (time != null) {
                               setModalState(() {
                                 selectedDateTime = DateTime(
-                                  date.year, date.month, date.day,
-                                  time.hour, time.minute,
+                                  date.year,
+                                  date.month,
+                                  date.day,
+                                  time.hour,
+                                  time.minute,
                                 );
                               });
                             }
@@ -1447,11 +1569,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.calendar_today, color: AppColors.textSecondary),
+                              const Icon(
+                                Icons.calendar_today,
+                                color: AppColors.textSecondary,
+                              ),
                               const SizedBox(width: 12),
                               Text(
-                                DateFormat('dd MMM yyyy, HH:mm', 'id_ID').format(selectedDateTime),
-                                style: const TextStyle(color: AppColors.textPrimary, fontSize: 16),
+                                DateFormat(
+                                  'dd MMM yyyy, HH:mm',
+                                  'id_ID',
+                                ).format(selectedDateTime),
+                                style: const TextStyle(
+                                  color: AppColors.textPrimary,
+                                  fontSize: 16,
+                                ),
                               ),
                             ],
                           ),
@@ -1468,10 +1599,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (formKey.currentState!.validate()) {
                               if (selectedCategory == null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Pilih kategori terlebih dahulu'), backgroundColor: AppColors.expense),
+                                  const SnackBar(
+                                    content: Text(
+                                      'Pilih kategori terlebih dahulu',
+                                    ),
+                                    backgroundColor: AppColors.expense,
+                                  ),
                                 );
                                 return;
                               }
+
+                              // Ambil wallet yang sedang dipilih
+                              final currentWalletId = provider.selectedWalletId;
 
                               final transaction = Transaction(
                                 title: titleController.text.trim(),
@@ -1479,15 +1618,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                 categoryId: selectedCategory!.id!,
                                 date: selectedDateTime.toIso8601String(),
                                 category: selectedCategory,
+                                walletId: currentWalletId,
                               );
 
-                              final success = await context.read<TransactionProvider>().addTransaction(transaction);
+                              final success = await context
+                                  .read<TransactionProvider>()
+                                  .addTransaction(transaction);
 
                               if (success && context.mounted) {
                                 Navigator.pop(context);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('Transaksi "${transaction.title}" berhasil ditambahkan!'),
+                                    content: Text(
+                                      'Transaksi "${transaction.title}" berhasil ditambahkan!',
+                                    ),
                                     backgroundColor: AppColors.income,
                                   ),
                                 );
@@ -1498,7 +1642,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             backgroundColor: AppColors.primary,
                             foregroundColor: const Color(0xFF0D0D0D),
                           ),
-                          child: const Text('Simpan Transaksi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          child: const Text(
+                            'Simpan Transaksi',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -1517,9 +1667,13 @@ class _HomeScreenState extends State<HomeScreen> {
   // ADD CATEGORY DIALOG
   // ============================================================
 
-  void _showAddCategoryDialog(BuildContext context, int type, StateSetter setModalState) {
+  void _showAddCategoryDialog(
+    BuildContext context,
+    int type,
+    StateSetter setModalState,
+  ) {
     final nameController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -1550,16 +1704,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   name: nameController.text.trim(),
                   type: type,
                 );
-                
-                final success = await context.read<TransactionProvider>().addCategory(category);
-                
+
+                final success = await context
+                    .read<TransactionProvider>()
+                    .addCategory(category);
+
                 if (success && dialogContext.mounted) {
                   Navigator.pop(dialogContext);
                   setModalState(() {}); // Refresh dropdown
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Kategori "${category.name}" berhasil ditambahkan!'),
+                        content: Text(
+                          'Kategori "${category.name}" berhasil ditambahkan!',
+                        ),
                         backgroundColor: AppColors.income,
                       ),
                     );

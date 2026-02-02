@@ -46,7 +46,6 @@ class Transaction {
 
   /// Mengkonversi object Transaction ke Map untuk disimpan ke database
   /// Tidak menyertakan 'category' karena itu hasil JOIN
-  /// wallet_id tidak disimpan ke database karena kolom belum ada
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -54,7 +53,7 @@ class Transaction {
       'amount': amount,
       'category_id': categoryId,
       'date': date,
-      // wallet_id tidak disertakan karena kolom belum ada di database
+      'wallet_id': walletId,
     };
   }
 

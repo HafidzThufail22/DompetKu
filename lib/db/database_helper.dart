@@ -30,7 +30,7 @@ class DatabaseHelper {
   static const String _databaseName = 'dompetku.db';
 
   /// Versi database (untuk migrasi)
-  static const int _databaseVersion = 2;
+  static const int _databaseVersion = 3;
 
   /// Nama tabel
   static const String tableCategories = 'categories';
@@ -83,6 +83,7 @@ class DatabaseHelper {
         amount INTEGER NOT NULL,
         category_id INTEGER NOT NULL,
         date TEXT NOT NULL,
+        wallet_id INTEGER,
         FOREIGN KEY (category_id) REFERENCES $tableCategories(id)
       )
     ''');
@@ -95,7 +96,7 @@ class DatabaseHelper {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       // Migrasi dari versi 1 ke versi 2
-      
+
       // 1. Buat tabel categories baru
       await db.execute('''
         CREATE TABLE IF NOT EXISTS $tableCategories (
@@ -134,27 +135,66 @@ class DatabaseHelper {
       await db.execute('DROP TABLE $tableTransactions');
 
       // 6. Rename tabel baru
-      await db.execute('ALTER TABLE ${tableTransactions}_new RENAME TO $tableTransactions');
+      await db.execute(
+        'ALTER TABLE ${tableTransactions}_new RENAME TO $tableTransactions',
+      );
+    }
+
+    if (oldVersion < 3) {
+      // Migrasi dari versi 2 ke versi 3 - Tambah kolom wallet_id
+      await db.execute(
+        'ALTER TABLE $tableTransactions ADD COLUMN wallet_id INTEGER',
+      );
     }
   }
 
   /// Seed default categories
   Future<void> _seedDefaultCategories(Database db) async {
     // Expense categories
-    await db.insert(tableCategories, {'name': 'Makan', 'type': Category.typeExpense});
-    await db.insert(tableCategories, {'name': 'Transport', 'type': Category.typeExpense});
-    
+    await db.insert(tableCategories, {
+      'name': 'Makan',
+      'type': Category.typeExpense,
+    });
+    await db.insert(tableCategories, {
+      'name': 'Transport',
+      'type': Category.typeExpense,
+    });
+
     // Income categories
-    await db.insert(tableCategories, {'name': 'Gaji', 'type': Category.typeIncome});
-    await db.insert(tableCategories, {'name': 'Bonus', 'type': Category.typeIncome});
-    await db.insert(tableCategories, {'name': 'Freelance', 'type': Category.typeIncome});
-    
+    await db.insert(tableCategories, {
+      'name': 'Gaji',
+      'type': Category.typeIncome,
+    });
+    await db.insert(tableCategories, {
+      'name': 'Bonus',
+      'type': Category.typeIncome,
+    });
+    await db.insert(tableCategories, {
+      'name': 'Freelance',
+      'type': Category.typeIncome,
+    });
+
     // More expense categories
-    await db.insert(tableCategories, {'name': 'Belanja', 'type': Category.typeExpense});
-    await db.insert(tableCategories, {'name': 'Hiburan', 'type': Category.typeExpense});
-    await db.insert(tableCategories, {'name': 'Tagihan', 'type': Category.typeExpense});
-    await db.insert(tableCategories, {'name': 'Kesehatan', 'type': Category.typeExpense});
-    await db.insert(tableCategories, {'name': 'Lainnya', 'type': Category.typeExpense});
+    await db.insert(tableCategories, {
+      'name': 'Belanja',
+      'type': Category.typeExpense,
+    });
+    await db.insert(tableCategories, {
+      'name': 'Hiburan',
+      'type': Category.typeExpense,
+    });
+    await db.insert(tableCategories, {
+      'name': 'Tagihan',
+      'type': Category.typeExpense,
+    });
+    await db.insert(tableCategories, {
+      'name': 'Kesehatan',
+      'type': Category.typeExpense,
+    });
+    await db.insert(tableCategories, {
+      'name': 'Lainnya',
+      'type': Category.typeExpense,
+    });
   }
 
   // ============================================================
@@ -225,11 +265,7 @@ class DatabaseHelper {
   /// Perhatian: Pastikan tidak ada transaksi yang menggunakan kategori ini
   Future<int> deleteCategory(int id) async {
     final db = await database;
-    return await db.delete(
-      tableCategories,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete(tableCategories, where: 'id = ?', whereArgs: [id]);
   }
 
   // ============================================================
@@ -259,6 +295,7 @@ class DatabaseHelper {
         t.amount,
         t.category_id,
         t.date,
+        t.wallet_id,
         c.name as category_name,
         c.type as category_type
       FROM $tableTransactions t
@@ -275,20 +312,24 @@ class DatabaseHelper {
   Future<List<Transaction>> getTransactionsByType(int type) async {
     final db = await database;
 
-    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+    final List<Map<String, dynamic>> maps = await db.rawQuery(
+      '''
       SELECT 
         t.id,
         t.title,
         t.amount,
         t.category_id,
         t.date,
+        t.wallet_id,
         c.name as category_name,
         c.type as category_type
       FROM $tableTransactions t
       LEFT JOIN $tableCategories c ON t.category_id = c.id
       WHERE c.type = ?
       ORDER BY t.date DESC, t.id DESC
-    ''', [type]);
+    ''',
+      [type],
+    );
 
     return List.generate(maps.length, (index) {
       return Transaction.fromMapWithCategory(maps[index]);
@@ -299,20 +340,24 @@ class DatabaseHelper {
   Future<List<Transaction>> getTransactionsByCategory(int categoryId) async {
     final db = await database;
 
-    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+    final List<Map<String, dynamic>> maps = await db.rawQuery(
+      '''
       SELECT 
         t.id,
         t.title,
         t.amount,
         t.category_id,
         t.date,
+        t.wallet_id,
         c.name as category_name,
         c.type as category_type
       FROM $tableTransactions t
       LEFT JOIN $tableCategories c ON t.category_id = c.id
       WHERE t.category_id = ?
       ORDER BY t.date DESC, t.id DESC
-    ''', [categoryId]);
+    ''',
+      [categoryId],
+    );
 
     return List.generate(maps.length, (index) {
       return Transaction.fromMapWithCategory(maps[index]);
@@ -320,23 +365,30 @@ class DatabaseHelper {
   }
 
   /// READ: Mengambil transaksi berdasarkan rentang tanggal
-  Future<List<Transaction>> getTransactionsByDateRange(String startDate, String endDate) async {
+  Future<List<Transaction>> getTransactionsByDateRange(
+    String startDate,
+    String endDate,
+  ) async {
     final db = await database;
 
-    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+    final List<Map<String, dynamic>> maps = await db.rawQuery(
+      '''
       SELECT 
         t.id,
         t.title,
         t.amount,
         t.category_id,
         t.date,
+        t.wallet_id,
         c.name as category_name,
         c.type as category_type
       FROM $tableTransactions t
       LEFT JOIN $tableCategories c ON t.category_id = c.id
       WHERE t.date >= ? AND t.date <= ?
       ORDER BY t.date DESC, t.id DESC
-    ''', [startDate, endDate]);
+    ''',
+      [startDate, endDate],
+    );
 
     return List.generate(maps.length, (index) {
       return Transaction.fromMapWithCategory(maps[index]);
@@ -357,11 +409,7 @@ class DatabaseHelper {
   /// DELETE: Menghapus transaksi berdasarkan ID
   Future<int> deleteTransaction(int id) async {
     final db = await database;
-    return await db.delete(
-      tableTransactions,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete(tableTransactions, where: 'id = ?', whereArgs: [id]);
   }
 
   // ============================================================

@@ -13,10 +13,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Pengaturan'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Pengaturan'), centerTitle: true),
       body: Consumer<TransactionProvider>(
         builder: (context, provider, child) {
           return SingleChildScrollView(
@@ -146,12 +143,16 @@ class SettingsScreen extends StatelessWidget {
       child: Column(
         children: List.generate(categories.length, (index) {
           final category = categories[index];
-          final transactionCount = provider.getTransactionCountByCategory(category.id!);
+          final transactionCount = provider.getTransactionCountByCategory(
+            category.id!,
+          );
           final canDelete = provider.canDeleteCategory(category.id!);
 
           return Dismissible(
             key: Key('category_${category.id}'),
-            direction: canDelete ? DismissDirection.endToStart : DismissDirection.none,
+            direction: canDelete
+                ? DismissDirection.endToStart
+                : DismissDirection.none,
             background: Container(
               alignment: Alignment.centerRight,
               padding: const EdgeInsets.only(right: 20),
@@ -170,7 +171,9 @@ class SettingsScreen extends StatelessWidget {
               if (!canDelete) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Tidak bisa hapus: ada $transactionCount transaksi'),
+                    content: Text(
+                      'Tidak bisa hapus: ada $transactionCount transaksi',
+                    ),
                     backgroundColor: AppColors.expense,
                   ),
                 );
@@ -189,7 +192,10 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Hapus', style: TextStyle(color: AppColors.expense)),
+                      child: const Text(
+                        'Hapus',
+                        style: TextStyle(color: AppColors.expense),
+                      ),
                     ),
                   ],
                 ),
@@ -199,7 +205,9 @@ class SettingsScreen extends StatelessWidget {
               final success = await provider.deleteCategory(category.id!);
               if (success && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Kategori "${category.name}" dihapus')),
+                  SnackBar(
+                    content: Text('Kategori "${category.name}" dihapus'),
+                  ),
                 );
               }
             },
@@ -299,7 +307,9 @@ class SettingsScreen extends StatelessWidget {
                   name: nameController.text.trim(),
                   type: type,
                 );
-                final success = await context.read<TransactionProvider>().addCategory(category);
+                final success = await context
+                    .read<TransactionProvider>()
+                    .addCategory(category);
                 if (dialogContext.mounted) {
                   Navigator.pop(dialogContext);
                 }
@@ -355,7 +365,9 @@ class SettingsScreen extends StatelessWidget {
                   name: nameController.text.trim(),
                   type: category.type,
                 );
-                final success = await context.read<TransactionProvider>().updateCategory(updatedCategory);
+                final success = await context
+                    .read<TransactionProvider>()
+                    .updateCategory(updatedCategory);
                 if (dialogContext.mounted) {
                   Navigator.pop(dialogContext);
                 }
@@ -415,17 +427,12 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 4),
           const Text(
             'Versi 1.0.0',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-            ),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 12),
           const Text(
             'Aplikasi pencatatan keuangan pribadi',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
             textAlign: TextAlign.center,
           ),
         ],

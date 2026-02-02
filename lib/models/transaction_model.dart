@@ -46,6 +46,7 @@ class Transaction {
 
   /// Mengkonversi object Transaction ke Map untuk disimpan ke database
   /// Tidak menyertakan 'category' karena itu hasil JOIN
+  /// wallet_id tidak disimpan ke database karena kolom belum ada
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -53,7 +54,7 @@ class Transaction {
       'amount': amount,
       'category_id': categoryId,
       'date': date,
-      'wallet_id': walletId,
+      // wallet_id tidak disertakan karena kolom belum ada di database
     };
   }
 
@@ -66,7 +67,8 @@ class Transaction {
       amount: map['amount'] as int,
       categoryId: map['category_id'] as int,
       date: map['date'] as String,
-      walletId: map['wallet_id'] as int?,
+      // wallet_id mungkin tidak ada di database lama
+      walletId: map.containsKey('wallet_id') ? map['wallet_id'] as int? : null,
     );
   }
 
@@ -79,7 +81,8 @@ class Transaction {
       amount: map['amount'] as int,
       categoryId: map['category_id'] as int,
       date: map['date'] as String,
-      walletId: map['wallet_id'] as int?,
+      // wallet_id mungkin tidak ada di database lama
+      walletId: map.containsKey('wallet_id') ? map['wallet_id'] as int? : null,
       category: Category(
         id: map['category_id'] as int?,
         name: map['category_name'] as String? ?? 'Unknown',

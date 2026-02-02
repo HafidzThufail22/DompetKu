@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' hide Category;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/transaction_model.dart';
 import '../models/category_model.dart';
+import '../models/wallet_model.dart';
 // Conditional import: gunakan database_helper untuk mobile, stub untuk web
 import '../db/database_helper_stub.dart'
     if (dart.library.io) '../db/database_helper.dart';
@@ -34,6 +35,10 @@ class TransactionProvider extends ChangeNotifier {
   /// Counter untuk generate ID di mode web
   int _webTransactionIdCounter = 0;
   int _webCategoryIdCounter = 10;
+  int _webWalletIdCounter = 10;
+
+  /// List wallet yang disimpan di memory
+  List<Wallet> _wallets = [];
 
   // ============================================================
   // HIDE BALANCE FEATURE
@@ -165,6 +170,7 @@ class TransactionProvider extends ChangeNotifier {
   /// Initialize provider (load preferences dan data)
   Future<void> _init() async {
     await loadPreferences();
+    await loadWallets();
     await loadCategories();
     await loadTransactions();
   }
@@ -474,6 +480,100 @@ class TransactionProvider extends ChangeNotifier {
   /// Hitung jumlah transaksi per kategori
   int getTransactionCountByCategory(int categoryId) {
     return _allTransactions.where((t) => t.categoryId == categoryId).length;
+  }
+
+  // ============================================================
+  // WALLET CRUD FUNCTIONS
+  // ============================================================
+
+  /// Getter untuk mengakses list wallet (read-only)
+  List<Wallet> get wallets => _wallets;
+
+  /// Memuat semua wallet dari memory (untuk saat ini)
+  Future<void> loadWallets() async {
+    try {
+      if (_wallets.isEmpty) {
+        _wallets = Wallet.defaultWallets;
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading wallets: $e');
+      _wallets = Wallet.defaultWallets;
+      notifyListeners();
+    }
+  }
+
+  /// Mendapatkan wallet berdasarkan ID
+  Wallet? getWalletById(int id) {
+    try {
+      return _wallets.firstWhere((w) => w.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Menambahkan wallet baru
+  Future<bool> addWallet(Wallet wallet) async {
+    try {
+      _webWalletIdCounter++;
+      final newWallet = Wallet(
+        id: _webWalletIdCounter,
+        name: wallet.name,
+        icon: wallet.icon,
+        color: wallet.color,
+      );
+      _wallets.add(newWallet);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('Error adding wallet: $e');
+      return false;
+    }
+  }
+
+  /// Mengupdate wallet
+  Future<bool> updateWallet(Wallet wallet) async {
+    try {
+      final index = _wallets.indexWhere((w) => w.id == wallet.id);
+      if (index != -1) {
+        _wallets[index] = wallet;
+        notifyListeners();
+      }
+      return true;
+    } catch (e) {
+      debugPrint('Error updating wallet: $e');
+      return false;
+    }
+  }
+
+  /// Menghapus wallet
+  Future<bool> deleteWallet(int id) async {
+    try {
+      // Cek apakah wallet memiliki transaksi
+      final hasTransactions = _allTransactions.any((t) => t.walletId == id);
+      if (hasTransactions) {
+        debugPrint('Cannot delete wallet: has transactions');
+        return false;
+      }
+
+      _wallets.removeWhere((w) => w.id == id);
+      
+      // Reset selected wallet jika yang dihapus adalah yang dipilih
+      if (_selectedWalletId == id) {
+        _selectedWalletId = null;
+      }
+      
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('Error deleting wallet: $e');
+      return false;
+    }
+  }
+
+  /// Cek apakah wallet bisa dihapus
+  bool canDeleteWallet(int walletId) {
+    return !_allTransactions.any((t) => t.walletId == walletId);
   }
 
   // ============================================================

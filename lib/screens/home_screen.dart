@@ -780,9 +780,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Keuangan Utama',
-                style: TextStyle(
+              Text(
+                provider.selectedMonthName,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF0D0D0D),
@@ -1451,7 +1451,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         controller: titleController,
                         style: const TextStyle(color: AppColors.textPrimary),
                         decoration: const InputDecoration(
-                          hintText: 'Contoh: Gaji Bulanan',
+                          hintText: 'Masukkan keterangan',
                           prefixIcon: Icon(Icons.edit),
                         ),
                         validator: (value) {
@@ -1476,7 +1476,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         keyboardType: TextInputType.number,
                         style: const TextStyle(color: AppColors.textPrimary),
                         decoration: const InputDecoration(
-                          hintText: 'Contoh: 500000',
+                          hintText: 'Masukkan nominal',
                           prefixIcon: Icon(Icons.attach_money),
                         ),
                         validator: (value) {
@@ -1631,6 +1631,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   SnackBar(
                                     content: Text(
                                       'Transaksi "${transaction.title}" berhasil ditambahkan!',
+                                      style: const TextStyle(color: Color(0xFF0D0D0D)),
                                     ),
                                     backgroundColor: AppColors.income,
                                   ),

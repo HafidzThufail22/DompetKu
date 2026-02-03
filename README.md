@@ -18,8 +18,8 @@ A personal finance management app built with Flutter. Track your income, expense
 
 ## 📱 Screenshots
 
-| Home | Report | Settings |
-|:----:|:------:|:--------:|
+|             Home              |              Report               |               Settings                |
+| :---------------------------: | :-------------------------------: | :-----------------------------------: |
 | ![Home](screenshots/home.png) | ![Report](screenshots/report.png) | ![Settings](screenshots/settings.png) |
 
 ## 🛠️ Tech Stack
@@ -54,12 +54,14 @@ dependencies:
 ### Installation
 
 1. Clone the repository
+
    ```bash
    git clone https://github.com/yourusername/dompetku.git
    cd dompetku
    ```
 
 2. Install dependencies
+
    ```bash
    flutter pub get
    ```
@@ -100,13 +102,13 @@ lib/
 
 ## 🎨 Color Scheme
 
-| Color | Hex | Usage |
-|-------|-----|-------|
-| Primary | `#D4AF37` | Accent, buttons |
-| Background | `#0D0D0D` | App background |
-| Surface | `#1A1A2E` | Cards, containers |
-| Income | `#4CAF50` | Income indicators |
-| Expense | `#F44336` | Expense indicators |
+| Color      | Hex       | Usage              |
+| ---------- | --------- | ------------------ |
+| Primary    | `#D4AF37` | Accent, buttons    |
+| Background | `#0D0D0D` | App background     |
+| Surface    | `#1A1A2E` | Cards, containers  |
+| Income     | `#4CAF50` | Income indicators  |
+| Expense    | `#F44336` | Expense indicators |
 
 ## 🤝 Contributing
 

@@ -777,89 +777,102 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header Row: Month Title + Hide Balance Toggle
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 provider.selectedMonthName,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF0D0D0D),
                 ),
               ),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(77),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      provider.selectedMonthName,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF333333),
-                      ),
-                    ),
+              // Hide/Show Balance Toggle
+              GestureDetector(
+                onTap: () => provider.toggleBalanceVisibility(),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(77),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  const SizedBox(width: 8),
-                  // Hide/Show Balance Toggle
-                  GestureDetector(
-                    onTap: () => provider.toggleBalanceVisibility(),
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(77),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        isHidden ? Icons.visibility_off : Icons.visibility,
-                        size: 18,
-                        color: const Color(0xFF333333),
-                      ),
-                    ),
+                  child: Icon(
+                    isHidden ? Icons.visibility_off : Icons.visibility,
+                    size: 20,
+                    color: const Color(0xFF333333),
                   ),
-                ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
+          // Monthly Balance Label
           Row(
             children: [
               const Text(
                 'Saldo Bulan Ini',
-                style: TextStyle(fontSize: 14, color: Color(0xFF333333)),
+                style: TextStyle(
+                  fontSize: 14, 
+                  color: Color(0xFF333333),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               if (isHidden)
                 const Icon(Icons.lock, size: 14, color: Color(0xFF666666)),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
+          // Monthly Balance Amount
           Text(
             _formatBalanceDisplay(provider.monthlyBalance, isHidden),
             style: const TextStyle(
-              fontSize: 32,
+              fontSize: 34,
               fontWeight: FontWeight.bold,
               color: Color(0xFF0D0D0D),
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
+          // Total Balance (All Time) - Divider + Row
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withAlpha(50),
-              borderRadius: BorderRadius.circular(8),
+              color: Colors.white.withAlpha(60),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(
-              'Total: ${_formatBalanceDisplay(provider.totalBalance, isHidden)}',
-              style: const TextStyle(fontSize: 12, color: Color(0xFF333333)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.account_balance_wallet_outlined,
+                      size: 18,
+                      color: const Color(0xFF333333).withAlpha(180),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Total Keseluruhan',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF333333),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  _formatBalanceDisplay(provider.totalBalance, isHidden),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0D0D0D),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
